@@ -1,7 +1,8 @@
-package hermes
+package mimir
 
 import (
 	"context"
+	"github.com/redis/go-redis/v9"
 	"github.com/robfig/cron"
 )
 
@@ -40,11 +41,12 @@ type (
 )
 
 type Cron struct {
-	client    *cron.Cron
-	mutexConf MutexConf
+	mutexConf   MutexConf
+	cronClient  *cron.Cron
+	redisClient *redis.Client
 }
 
-func NewCron(conf MutexConf) *Cron {
+func NewCron(conf MutexConf, redis *redis.Client) *Cron {
 	c := new(Cron)
 
 	// set prefix if missing
@@ -58,6 +60,7 @@ func NewCron(conf MutexConf) *Cron {
 	}
 
 	c.mutexConf = conf
-	c.client = cron.New()
+	c.redisClient = redis
+	c.cronClient = cron.New()
 	return c
 }
