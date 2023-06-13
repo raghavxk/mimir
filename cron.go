@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/redis/go-redis/v9"
-	"github.com/robfig/cron"
 	"log"
 	"time"
+
+	"github.com/redis/go-redis/v9"
+	"github.com/robfig/cron"
 )
 
 const (
@@ -122,6 +123,7 @@ func wrapperHandle(c *Cron, h *Handler) func() {
 			} else {
 				log.Printf("job: %s error acquiring lock, err : %v", h.fName, err)
 			}
+			return
 		}
 		// defer lock release
 		defer func(c *Cron, ctx context.Context, h *Handler) {
@@ -135,6 +137,5 @@ func wrapperHandle(c *Cron, h *Handler) func() {
 		if err := h.run(ctx); err != nil {
 			log.Printf("error running job : %s, err : %v", h.fName, err)
 		}
-		return
 	}
 }
