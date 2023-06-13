@@ -2,6 +2,7 @@ package mimir
 
 import (
 	"context"
+	"fmt"
 	"github.com/redis/go-redis/v9"
 	"github.com/robfig/cron"
 )
@@ -63,4 +64,29 @@ func NewCron(conf MutexConf, redis *redis.Client) *Cron {
 	c.redisClient = redis
 	c.cronClient = cron.New()
 	return c
+}
+
+func (c *Cron) Register(cronSchedule string, fName string, h RunF) {
+	err := c.cronClient.AddFunc(cronSchedule, wrapperHandle(c, newHandler(cronSchedule, fName, h)))
+	if err != nil {
+		panic(fmt.Sprintf("failed to register cron : %s with error : %v", fName, err))
+	}
+}
+
+func (c *Cron) Run() {
+	c.cronClient.Run()
+}
+
+func wrapperHandle(c *Cron, h *Handler) func() {
+	return func() {
+		ctx := context.Background()
+
+		// lock mutex
+
+		// run
+		if err := h.run(ctx); err != nil {
+			return
+		}
+		// unlock mutex
+	}
 }
