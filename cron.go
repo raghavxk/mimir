@@ -33,13 +33,7 @@ func newHandler(cron string, fName string, run RunF) *Handler {
 }
 
 type (
-	RedisConf struct {
-		Host     string
-		Port     int
-		Password string `log:"-"`
-	}
 	MutexConf struct {
-		RedisConf RedisConf
 		Prefix    string
 		Factor    float64
 	}
